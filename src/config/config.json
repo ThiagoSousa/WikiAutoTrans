@@ -1,0 +1,18 @@
+{"translation_prompt": {
+    "title": "Translate the title of this wikipedia article from {source_language} to {target_language}. If no translation can be made just return the same title. The result should be only the translated title.",
+    "text": "Translate the text from {source_language} to {target_language}. The given text is a wikipedia file that contains HTML tags, please do not remove the tags in the output. The text contains LINK tags within [[ and ]] that should not be changed"
+  },
+  "translation_summary": {
+    "en": "Translating page {page_title} from {source_language} to {target_language}.",
+    "pt": "Tradução da página {page_title} de {source_language} para {target_language}."
+  },
+  "supported_languages": ["en", "pt"],
+  "wikidata_summary": "Set {target_language} sitelink",
+  "wikidata_sitelink": "{target_language}wiki",
+  "print_template": "Title: {title}\nText:{text}\n------------------",
+  "wikipedia_linksite": "wikipedia:{target_language}",
+  "wikiproject": "wikipedia",
+  "non_existing_predefinitions": {
+    "pt": ["{{Filiation}}"]
+  }
+}
