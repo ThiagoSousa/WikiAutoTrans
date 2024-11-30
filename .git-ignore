@@ -1,7 +1,0 @@
-src/config/apicache
-src/config/user-config.py
-src/config/user-password.py
-src/config/apicache
-apicache/
-.pytest_cache/
-.idea/

@@ -1,0 +1,9 @@
+/src/config/user-config.py
+/src/config/user-password.py
+src/config/apicache
+apicache/
+.pytest_cache/
+.idea/
+src/translation_engine/__pycache__/
+src/utils/__pycache__/
+src/wikipedia_wrapper/__pycache__/
