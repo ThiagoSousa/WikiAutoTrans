@@ -112,9 +112,9 @@ class WikipediaTranslator:
                 self.print_page(new_page)
 
             # save the page and update the language link in wikidata
-            if self.should_save:
-                new_page.save(self.translation_summary[target_language].replace("{page_title}", page_title).replace("{source_language}", source_language).replace("{target_language}", target_language))
-                self.set_language_link(original_page, new_page, target_language)
+            # if self.should_save:
+            #     new_page.save(self.translation_summary[target_language].replace("{page_title}", page_title).replace("{source_language}", source_language).replace("{target_language}", target_language))
+            #     self.set_language_link(original_page, new_page, target_language)
             return new_page
         return None
 
