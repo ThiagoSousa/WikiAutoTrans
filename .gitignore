@@ -1,6 +1,9 @@
 /src/config/user-config.py
 /src/config/user-password.py
-src/config/apicache
+/src/config/apicache
+/src/config/pywikibot-ThiagoSousaSilveira.lwp
+/src/config/throttle.ctrl
+throttle.ctrl
 apicache/
 .pytest_cache/
 .idea/
