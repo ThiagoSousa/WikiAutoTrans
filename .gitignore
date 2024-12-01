@@ -7,6 +7,10 @@ throttle.ctrl
 apicache/
 .pytest_cache/
 .idea/
+src/__pycache__/
+src/config/__pycache__/
+tests/__pycache__/
+tests/wikipedia_wrapper/__pycache__/
 src/translation_engine/__pycache__/
 src/utils/__pycache__/
 src/wikipedia_wrapper/__pycache__/
