@@ -121,9 +121,9 @@ class WikipediaTranslator:
 
     def pre_process_text(self, page: Page) -> Tuple[Page, dict]:
         """
-        v2 of how to preprocess hyperlinks
+        Preprocess hyperlinks and other elemtns
         :param page: page object
-        :return: tuple containing the page after processing and the hyperlinks dictionary
+        :return: tuple containing the page after processing
         """
 
         # retrieve the links in the text
@@ -172,7 +172,25 @@ class WikipediaTranslator:
         :return: page
         """
 
-        # retrieve the page's text
+        # process the hyperlinks first
+        page = self.post_process_hyperlinks(page, hyperlinks_dict, source_language, target_language)
+
+        # post process the templates
+        page = self.post_process_predefinitions(page, target_language)
+
+        return page
+
+    def post_process_hyperlinks(self, page: Page, hyperlinks_dict: dict[str, str], source_language: str,
+                                target_language: str) -> Page:
+        """
+        Post process the hyperlinks
+        :param page: page object
+        :param hyperlinks_dict: dictionary with hyperlinks
+        :param source_language: source language
+        :param target_language: target language
+        :return: new page after solving the hyperlinks
+        """
+
         text = page.text
 
         # iterate through the hyperlinks to replace the links in the text
@@ -190,13 +208,10 @@ class WikipediaTranslator:
             # replace the target links with the correct code
             if target_page is not None:
                 target_link = str(target_page).replace(f"{target_language}:", "").replace("[[", "").replace("]]", "")
-                text = text.replace(code+"|", target_link+"|")
+                text = text.replace(code + "|", target_link + "|")
             else:
                 text = re.sub(f"\[\[{code}\|(.+?)\]\]", r"\1", text)
         page.text = text
-
-        # post process the templates
-        page = self.post_process_predefinitions(page, target_language)
 
         return page
 
