@@ -10,7 +10,7 @@ if __name__ == "__main__":
                                      description='Reads from a file pages that need to be translated')
     parser.add_argument("input_file", type=str, help="Page to translate to another language")
     parser.add_argument("-verbose", type=bool, help="Whether to print or not", default=True)
-    parser.add_argument("-should_save", type=bool, help="Whether to print or not", default=True)
+    parser.add_argument("-should_save", type=bool, help="Whether to print or not", default=False)
     parser.add_argument("-destination", type=str, help="folder destination, a file title.json will be created there",
                         default=None)
 

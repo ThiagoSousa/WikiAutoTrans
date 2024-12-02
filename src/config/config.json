@@ -1,6 +1,6 @@
 {"translation_prompt": {
     "title": "Translate the title of this wikipedia article from {source_language} to {target_language}. If no translation can be made just return the same title. The result should be only the translated title.",
-    "text": "Translate the text from {source_language} to {target_language}. The given text is a wikipedia file that contains HTML tags, please do not remove the tags in the output. The text contains LINK tags within [[ and ]] that should not be changed. The translated text should be written in a neutral point of view, substantially paraphrased from the original text and naturally fluid"
+    "text": "Translate the text from {source_language} to {target_language}. The given text is a wikipedia file that contains HTML tags, please do not remove the tags in the output. The text contains LINK tags within [[ and ]] that should not be changed. The translated text should be written in a neutral tone, substantially paraphrased from the original text and naturally fluid"
   },
   "translation_summary": {
     "en": "Content in this edit is from the existing {long_source_language} Wikipedia article at [[:{source_language}: {page_title}]]; see its history for attribution. Formatting follows.",

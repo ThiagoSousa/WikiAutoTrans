@@ -195,7 +195,7 @@ class WikipediaTranslator:
                 text = re.sub(f"\[\[{code}\|(.+?)\]\]", r"\1", text)
         page.text = text
 
-        # post process the predefinitions
+        # post process the templates
         page = self.post_process_predefinitions(page, target_language)
 
         return page
