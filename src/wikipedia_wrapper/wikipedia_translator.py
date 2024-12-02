@@ -35,6 +35,7 @@ class WikipediaTranslator:
         self.wikidata_sitelink = config.config["wikidata_sitelink"]
         self.print_template = config.config["print_template"]
         self.wikipedia_linksite = config.config["wikipedia_linksite"]
+        self.language_dict = config.config["language_dict"]
 
         # predefinitions
         self.non_existing_predefinitions = config.config["non_existing_predefinitions"]
@@ -113,7 +114,7 @@ class WikipediaTranslator:
 
             # save the page and update the language link in wikidata
             # if self.should_save:
-            #     new_page.save(self.translation_summary[target_language].replace("{page_title}", page_title).replace("{source_language}", source_language).replace("{target_language}", target_language))
+            #     new_page.save(self.generate_summary(page_title, source_language))
             #     self.set_language_link(original_page, new_page, target_language)
             return new_page
         return None
@@ -226,6 +227,21 @@ class WikipediaTranslator:
             if str(link.site) == self.wikipedia_linksite.replace("{target_language}", target_language):
                 return link
         return None
+
+    def generate_summary(self, page_title: str, source_language: str) -> str:
+        """
+        Generate Summary to Publish/save the page in the wiki project
+        :param page_title: title of the source page.
+        :param source_language: source language
+        :return: summary for saving in the wiki project
+        """
+
+        summary_template = self.translation_summary[source_language]
+        summary_template = summary_template.replace("{long_source_language}", self.language_dict[source_language])
+        summary_template = summary_template.replace("{source_language}", source_language)
+        summary_template = summary_template.replace("{page_title}", page_title)
+
+        return summary_template
 
     def set_language_link(self, page: Page, new_page: Page, target_language: str):
         """
