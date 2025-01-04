@@ -8,6 +8,7 @@ from typing import Optional, Tuple
 import re
 
 from src.utils.utils import persist_page
+from src.wikipedia_wrapper.nonprose_element import NonProseElements, HyperLinkElement, ReferenceElement
 from src.wikipedia_wrapper.page_doesnt_exist_error import PageDoesntExistError
 from src.wikipedia_wrapper.wiki_not_available_error import WikiNotAvailableError
 
@@ -92,7 +93,7 @@ class WikipediaTranslator:
         if link is None:
 
             # preprocess the page to deal with hyperlinks
-            original_page, hyperlinks_dict = self.pre_process_text(original_page)
+            original_page, non_prose_elements = self.pre_process_text(original_page)
 
             # translate text and title
             translated_text = self.translator.perform_translation(original_page.text, source_language, target_language,
@@ -108,7 +109,7 @@ class WikipediaTranslator:
                 self.print_page(new_page)
 
             # post process the links to deal with them
-            new_page = self.post_process(new_page, hyperlinks_dict, source_language, target_language)
+            new_page = self.post_process(new_page, non_prose_elements, source_language, target_language)
             if self.verbose:
                 self.print_page(new_page)
 
@@ -119,37 +120,47 @@ class WikipediaTranslator:
             return new_page
         return None
 
-    def pre_process_text(self, page: Page) -> Tuple[Page, dict]:
+    def pre_process_text(self, page: Page) -> Tuple[Page, NonProseElements]:
         """
         Preprocess hyperlinks and other elemtns
         :param page: page object
         :return: tuple containing the page after processing
         """
 
-        # retrieve the links in the text
         text = page.text
-        links = self.find_hyperlinks(text)
+        non_prose_elements = NonProseElements()
 
-        # build a dictionary and mask the links in the text
-        hyperlinks_dict = {}
-        for i, link in enumerate(links):
+        # preprocess hyperlinks
+        text = non_prose_elements.pre_process_hyperlinks(text)
 
-            if "|" in link:
-                hyperlink = link.split("|")[0].replace("[[", "")
-                link_name = link.split("|")[1].replace("]]", "")
+        # preprocess references
+        text = non_prose_elements.pre_process_references(text)
 
-                text = text.replace(link, f"[[LINK{i}|{link_name}]]")
-
-                hyperlinks_dict[f"LINK{i}"] = hyperlink
-            else:
-                link_name = link.replace("[[", "").replace("]]", "")
-                text = text.replace(link, f"[[LINK{i}|{link_name}]]")
-
-                hyperlinks_dict[f"LINK{i}"] = link_name
-
-        # put the text back in the page and return the page with hyperlinks
         page.text = text
-        return page, hyperlinks_dict
+
+        # # retrieve the links in the text
+        # links = self.find_hyperlinks(text)
+        #
+        # # build a dictionary and mask the links in the text
+        # hyperlinks_dict = {}
+        # for i, link in enumerate(links):
+        #
+        #     if "|" in link:
+        #         hyperlink = link.split("|")[0].replace("[[", "")
+        #         link_text = link.split("|")[1].replace("]]", "")
+        #
+        #         text = text.replace(link, f"[[LINK{i}|{link_text}]]")
+        #
+        #         hyperlinks_dict[f"LINK{i}"] = hyperlink
+        #     else:
+        #         link_text = link.replace("[[", "").replace("]]", "")
+        #         text = text.replace(link, f"[[LINK{i}|{link_text}]]")
+        #
+        #         hyperlinks_dict[f"LINK{i}"] = link_text
+        #
+        # # put the text back in the page and return the page with hyperlinks
+        # page.text = text
+        return page, non_prose_elements
 
     @staticmethod
     def find_hyperlinks(text: str) -> list[str]:
@@ -161,26 +172,31 @@ class WikipediaTranslator:
 
         return re.findall("\[\[.+?\]\]", text)
 
-    def post_process(self, page: Page, hyperlinks_dict: dict[str, str], source_language: str = "en",
+    def post_process(self, page: Page, non_prose_elements: NonProseElements, source_language: str = "en",
                      target_language: str = "pt") -> Page:
         """
         Post process the wiki page after the translation is done
         :param page:
-        :param hyperlinks_dict: dictionary of the links, built in the preprocess function
+        :param non_prose_elements: dictionary of the links, built in the preprocess function
         :param source_language: source language
         :param target_language: target language
         :return: page
         """
 
         # process the hyperlinks first
-        page = self.post_process_hyperlinks(page, hyperlinks_dict, source_language, target_language)
+        text = page.text
+
+        page = self.post_process_hyperlinks(page, non_prose_elements.hyperlinks, source_language, target_language)
 
         # post process the templates
         page = self.post_process_predefinitions(page, target_language)
 
+        # post process the references
+        page = self.post_process_references(page, non_prose_elements.references)
+
         return page
 
-    def post_process_hyperlinks(self, page: Page, hyperlinks_dict: dict[str, str], source_language: str,
+    def post_process_hyperlinks(self, page: Page, hyperlinks: list[HyperLinkElement], source_language: str,
                                 target_language: str) -> Page:
         """
         Post process the hyperlinks
@@ -194,7 +210,10 @@ class WikipediaTranslator:
         text = page.text
 
         # iterate through the hyperlinks to replace the links in the text
-        for code, page_name in hyperlinks_dict.items():
+        for hyperlink in hyperlinks:
+
+            code = hyperlink.element_id
+            page_name = hyperlink.text
 
             # retrieve the linked page in the hyperlink, get its equivalent in the target language. If it doesn't exist
             try:
@@ -228,6 +247,25 @@ class WikipediaTranslator:
             text = text.replace(predefinition, "")
         page.text = text
         return page
+
+    def post_process_references(self, page: Page, references: list[ReferenceElement]):
+        """
+        Post Process the references
+        :param page:
+        :param references:
+        :return:
+        """
+
+        text = page.text
+        for reference in references:
+            ref_id = reference.element_id
+            reference_text = reference.text
+
+            text = text.replace(f"<{ref_id}>", reference_text)
+        page.text = text
+        return page
+
+
 
     def get_page_target_language(self, page: Page, target_language: str = "pt") -> Optional[Link]:
         """
@@ -294,3 +332,7 @@ class WikipediaTranslator:
         """
 
         persist_page({"title": page.title(), "text": page.text}, destination_path)
+
+
+
+
